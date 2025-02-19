@@ -1,0 +1,190 @@
+<style>
+	/* dark theme */
+	body {
+		background-color: #1e1e1e;
+		color: #d4d4d4;
+		font-family: Arial, Helvetica, sans-serif;
+
+	}
+
+	input[type="number"] {
+		background-color: #2e2e2e;
+		color: #d4d4d4;
+		border: 1px solid #2e2e2e;
+	}
+
+	input[type="number"]:focus {
+		border: 1px solid #d4d4d4;
+	}
+
+	input[type="number"]::-webkit-inner-spin-button,
+	input[type="number"]::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input[type="number"] {
+		-moz-appearance: textfield;
+	}
+
+	button {
+		background-color: #2e2e2e;
+		color: #d4d4d4;
+		border: 1px solid #2e2e2e;
+	}
+
+	button:hover {
+		background-color: #3e3e3e;
+	}
+
+	button:active {
+		background-color: #1e1e1e;
+	}
+
+	ol {
+		list-style-type: none;
+	}
+
+	li {
+		margin-bottom: 10px;
+	}
+
+	a {
+		color: #d4d4d4;
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
+	a:active {
+		color: #d4d4d4;
+	}
+
+	#download-links {
+		margin-top: 20px;
+	}
+
+	#download-links a {
+		font-size: 1.2em;
+	}
+
+	#download-links a:hover {
+		color: #d4d4d4;
+	}
+
+	#download-links a:active {
+		color: #d4d4d4;
+	}
+
+	#download-links a:visited {
+		color: #d4d4d4;
+	}
+
+	#download-links a:link {
+		color: #d4d4d4;
+	}
+
+	#download-links a:focus {
+		color: #d4d4d4;
+	}
+
+	#download-links a:target {
+		color: #d4d4d4;
+	}
+
+	#download-links a:lang {
+		color: #d4d4d4;
+	}
+
+	#download-links a:enabled {
+		color: #d4d4d4;
+	}
+
+	#download-links a:disabled {
+		color: #d4d4d4;
+	}
+
+	#download-links a:required {
+		color: #d4d4d4;
+	}
+
+	#download-links a:optional {
+		color: #d4d4d4;
+	}
+
+	#download-links a:valid {
+		color: #d4d4d4;
+	}
+
+	#download-links a:invalid {
+		color: #d4d4d4;
+	}
+
+
+</style>
+
+<script>
+    let stopIteration = false;
+
+	const URL_PART_1 = "https://takeout.google.com/takeout/download?j=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&i=";
+	const URL_PART_2 = "&user=xxxxxxxxxxxxxxxxxxx&rapt=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
+
+    function loadLinks(startAt = 0) {
+        let output = "<ol>";
+        for (let i = startAt; i < 132; i++) {
+            output += `<li><a href=\"${URL_PART_1}${i}${URL_PART_2}\" id=\"link-" + i + "\">Download ${i+1}</a></li>`;
+        }
+        output += "</ol>";
+        document.getElementById("download-links").innerHTML = output;
+    }
+
+    function openNewTabsToDownload(i = 0, endAt = 132) {
+		const downloadInterval = document.getElementById("download-interval").value * 1000;
+		if (i > endAt) {
+			stopIteration = true;
+			return;
+		}
+		openATab(i);
+		if (stopIteration) return;
+		i++;
+		setTimeout(() => openNewTabsToDownload(i), downloadInterval);
+	}
+
+	let openATab = (i) => {
+		let link = document.getElementById("link-" + i).href;
+		console.log("Opening link: " + link);
+		window.open(link, '_blank');
+		i++;
+	}
+
+    function startDownload() {
+		console.log("Starting download...");
+        stopIteration = false;
+        const startAt = (parseInt(document.getElementById("start-at").value) - 1) || 0;
+		const numberToDownload = parseInt(document.getElementById("number-to-download").value) || 10;
+		const endAt = startAt + numberToDownload;
+        openNewTabsToDownload(startAt, endAt);
+		setInterval(() => console.log(`Tick: ${new Date().toLocaleTimeString()}`), 10000);
+    }
+
+    window.onload = function() {
+        loadLinks();
+    };
+</script>
+<html>
+<body>
+    <div>
+        <label for="start-at">Start at:</label>
+        <input type="number" id="start-at" min="0" max="131" value="0">
+		<label for="number-to-download">Number to download:</label>
+		<input type="number" id="number-to-download" min="1" max="132" value="10">
+		<label for="download-interval">Download interval (in seconds):</label>
+		<input type="number" id="download-interval" min="1" value="60">
+        <button onclick="startDownload()">Start Download</button>
+    </div>
+    <div id="download-links"></div>
+</body>
+</html>
